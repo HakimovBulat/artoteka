@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+<h1>Последние 5 мнений за все время:</h1>
 <div class="container text-center">
-    ...
+    {% for i in range(5) %}
+    <h2>Крутой текст</h2>
+    <p> <img src="static\img\dog.webp" width="100" height="200" loading="lazy" align="left" vspace="5" hspace="5"> Это собачка</p>
+    <h1>2</h1>
+    <br><hr ><br>
+    {% endfor %}
 </div>
 {% endblock %}
