@@ -6,6 +6,7 @@ from data import db_session
 from forms.user import RegisterForm
 from forms.login import LoginForm
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init('db/blogs.db')
@@ -15,6 +16,7 @@ db_session.global_init('db/blogs.db')
 @app.route('/index')
 def index():
     return render_template('index.html', title='Главная страница')
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -29,6 +31,7 @@ def load_user(user_id):
 def logout():
     logout_user()
     return redirect("/")
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
@@ -51,6 +54,7 @@ def reqister():
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
