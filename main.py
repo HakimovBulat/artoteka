@@ -67,7 +67,12 @@ def login():
             return redirect('/')
         return render_template('login.html', title='Войти', form=form, message='Неправильный логин или пароль')
     return render_template('login.html', title='Войти', form=form)
-    
+
+@app.route('/my_page')
+def my_page():
+    db_sess = db_session.create_session()
+    opinions = db_sess.query(Opinion).filter(Opinion.user_id == current_user.id).all()
+    return render_template('my_page.html', title="Моя страница", user=current_user, opinions=opinions)
 
 @app.route('/about')
 def about():

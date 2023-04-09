@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if opinions %}
+
+  {% for opinion in opinions %}
+  <h1> {{ opinion.about }}</h1>
+  {% endfor %}
+{% else %}
+  <div class="container text-center"> <p> что-то тут пустовато... <br> <img src="static/img/empty.gif"> </p></div>
+{% endif %}
+{% endblock %}
