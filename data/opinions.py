@@ -5,9 +5,9 @@ from .db_session import SqlAlchemyBase
 
 
 class Opinion(SqlAlchemyBase):
-    __tablename__ = 'Opinions'
+    __tablename__ = 'opinions'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    creator = sqlalchemy.Column(sqlalchemy.String)
+    name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     picture = sqlalchemy.Column(sqlalchemy.BLOB, nullable=True)
     raiting = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     genre = sqlalchemy.Column(sqlalchemy.String, nullable=True)

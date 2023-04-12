@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+<h1 class="col-lg-6 mx-auto mb-4">Добавление мнения</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p class="col-lg-6 mx-auto mb-4">
+        {{ form.picture.label }}<br>
+        {{ form.picture(class="form-control") }}<br>
+        {% for error in form.picture.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">
+        {{ form.name.label }}<br>
+        {{ form.name(class="form-control") }}<br>
+        {% for error in form.name.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">
+        {{ form.rating.label }}<br>
+        {{ form.rating(class="form-control") }}<br>
+        {% for error in form.rating.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">
+        {{ form.genre.label }}<br>
+        {{ form.genre(class="form-control") }}<br>
+        {% for error in form.genre.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">
+        {{ form.date.label }}<br>
+        {{ form.date(class="form-control") }}<br>
+        {% for error in form.date.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">{{ form.is_watched() }} {{ form.is_watched.label }}</p>
+    <p class="col-lg-6 mx-auto mb-4">{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% if message %}
+    <div class="alert alert-danger">{{ message }}</div>
+    {% endif %}
+</form>
+</div>
+{% endblock %}
