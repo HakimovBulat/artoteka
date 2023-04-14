@@ -1,19 +1,18 @@
-from base64 import b64encode as enc64
-from base64 import b64decode as dec64
-from io import BytesIO
-from PIL import Image
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('try.html')
+
+@app.route('/', methods=['POST'])
+def upload_file():
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+        uploaded_file.save(f'static/img/{uploaded_file.filename}')
+    return redirect(url_for('index'))
 
 
-pict = "static\img\dog.webp"
-def binary_pic(pict):
-    with open(pict, "rb") as f:
-        binary = enc64(f.read())
-    return binary
-
-def export(binary):
-    image = BytesIO(dec64(binary))
-    pillow = Image.open(image)
-    x = pillow.show()
-
-
-export(binary_pic(pict))
+if __name__ == '__main__':
+    app.run(port=8080, host='127.0.0.1')

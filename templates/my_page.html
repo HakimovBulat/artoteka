@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<a href="opinions" class="btn btn-secondary">Добавить работу</a>
+<a href="/opinions" class="btn btn-secondary">Добавить мнение</a>
+<br>
+<a href="/my_page/movies" class="btn btn-outline-info">Фильмы</a>
+<a href="/my_page/series" class="btn btn-outline-info">Сериалы</a>
+<a href="/my_page/songs" class="btn btn-outline-info">Песни</a>
 {% if opinions %}
   {% for opinion in opinions %}
+  <div class="container text-center">
       <p> 
         <img width="400" height="300" src='static\img\{{opinion.id}}.jpg' width="400" height="300" loading="lazy" align="left" vspace="5" hspace="5"> 
-        {{ opinion.name }} <br>
+        <h3>{{ opinion.name }}</h3> <br>
         {{ opinion.about }} <br>
         {{ opinion.date }} <br>
         {% for i in range(opinion.raiting) %}
@@ -18,10 +23,10 @@
         <a href="/opinions/{{ opinion.id }}" class="btn btn-warning"> Изменить </a>
         <a href="/opinions_delete/{{ opinion.id }}" class="btn btn-danger"> Удалить </a>
       </div>
-      <br><br><br><br><br><br><br><br>
+  </div>
+    <br><br><br><br><br><br><br><br>
   {% endfor %}
 {% else %}
-  <h1>{{ opinions }}</h1>
   <div class="container text-center"> <p> что-то тут пустовато... <br> <img src="static/img/empty.gif"> </p></div>
 {% endif %}
 
