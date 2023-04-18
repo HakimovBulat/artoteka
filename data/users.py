@@ -18,7 +18,7 @@ class User(SqlAlchemyBase, UserMixin):
     opinions = orm.relationship("Opinion", back_populates='user')
 
     def __repr__(self):
-        return f'<User> {self.id} {self.surname} {self.name}'
+        return f'{self.surname} {self.name}'
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

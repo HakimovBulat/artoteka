@@ -21,7 +21,9 @@ opinion = db_sess.query(Opinion).all()
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='Главная страница')
+    db_sess = db_session.create_session()
+    opinions = db_sess.query(Opinion).filter(Opinion.is_secret == 1).all()[-5:]
+    return render_template('index.html', title='Главная страница', opinions=opinions)
 
 
 login_manager = LoginManager()
@@ -103,11 +105,11 @@ def add_opinion():
         opinions = Opinion(
             name = form.name.data,
             date = form.date.data,
-            is_watched = form.is_watched.data, 
+            is_secret = form.is_secret.data, 
             raiting = form.rating.data,
             about = form.about.data, 
             picture = enc64(request.files['file'].read()),
-            genre = 'Фильм', 
+            genre = form.genre.data, 
             user_id = current_user.id)
         current_user.opinions.append(opinions)
         db_sess.merge(current_user)
@@ -126,7 +128,7 @@ def edit_opinion(id):
         if opinions:
             form.name.data = opinions.name
             form.date.data = opinions.date
-            form.is_watched.data = opinions.is_watched
+            form.is_secret.data = opinions.is_secret
             form.rating.data = opinions.raiting
             form.about.data = opinions.about
             form.genre.data = opinions.genre
@@ -136,15 +138,14 @@ def edit_opinion(id):
         db_sess = db_session.create_session()
         opinions = db_sess.query(Opinion).filter(Opinion.id == id, Opinion.user == current_user).first()
         if opinions:
-            opinions = Opinion(
-            name = form.name.data,
-            date = form.date.data,
-            is_watched = form.is_watched.data, 
-            raiting = form.rating.data,
-            about = form.about.data, 
-            picture = enc64(request.files['file'].read()),
-            genre = 'Фильм', 
-            user_id = current_user.id)
+            opinions.name = form.name.data
+            opinions.date = form.date.data
+            opinions.is_secret = form.is_secret.data
+            opinions.raiting = form.rating.data
+            opinions.about = form.about.data
+            opinions.picture = enc64(request.files['file'].read())
+            opinions.genre = form.genre.data
+            opinions.user_id = current_user.id
             db_sess.commit()
             return redirect('/my_page')
         else:
@@ -168,3 +169,5 @@ def opinions_delete(id):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+    for picture in pictures:
+        os.remove(picture)

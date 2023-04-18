@@ -61,7 +61,7 @@
         {% endfor %}
     </p>
 
-    <p class="col-lg-6 mx-auto mb-4">{{ form.is_watched() }} {{ form.is_watched.label }}</p>
+    <p class="col-lg-6 mx-auto mb-4">{{ form.is_secret() }} {{ form.is_secret.label }}</p>
     <p class="col-lg-6 mx-auto mb-4">{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {% if message %}
     <div class="alert alert-danger">{{ message }}</div>
