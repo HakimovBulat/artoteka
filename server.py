@@ -18,11 +18,19 @@ db_session.global_init('db/blogs.db')
 db_sess = db_session.create_session()
 opinion = db_sess.query(Opinion).all()
 
+
 @app.route('/')
 @app.route('/index')
 def index():
     db_sess = db_session.create_session()
     opinions = db_sess.query(Opinion).filter(Opinion.is_secret == 1).all()[-5:]
+    opinions.reverse()
+    pictures = []
+    for opinion in opinions:
+        picture = BytesIO(dec64(opinion.picture))
+        image = Image.open(picture)
+        image.save(f'static\img\{opinion.id}.jpg')
+        pictures.append(f'static\img\{opinion.id}.jpg')
     return render_template('index.html', title='Главная страница', opinions=opinions)
 
 
@@ -35,7 +43,6 @@ def load_user(user_id):
 
 
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect("/")
@@ -77,18 +84,36 @@ def login():
     return render_template('login.html', title='Войти', form=form)
 
 
-@app.route('/my_page')
-def my_page():
+@app.route('/another_page/<int:id>')
+def another_page(id):
     global pictures
     db_sess = db_session.create_session()
-    opinions = db_sess.query(Opinion).filter(Opinion.user_id == current_user.id).all()
+    opinions = db_sess.query(Opinion).filter(Opinion.user_id == id, Opinion.is_secret == 1).all()
     pictures = []
     for opinion in opinions:
         picture = BytesIO(dec64(opinion.picture))
         image = Image.open(picture)
         image.save(f'static\img\{opinion.id}.jpg')
         pictures.append(f'static\img\{opinion.id}.jpg')
-    return render_template('my_page.html', title="Моя страница", user=current_user, opinions=opinions)
+    return render_template('my_page.html', title="Страница", user=current_user, opinions=opinions, type=type)
+
+
+@app.route('/my_page')
+@login_required
+def my_page():
+    global pictures
+    db_sess = db_session.create_session()
+    opinions = db_sess.query(Opinion).filter(Opinion.user_id == current_user.id).all()
+    pictures = []
+    try:
+        for opinion in opinions:
+            picture = BytesIO(dec64(opinion.picture))
+            image = Image.open(picture)
+            image.save(f'static\img\{opinion.id}.jpg')
+            pictures.append(f'static\img\{opinion.id}.jpg')
+        return render_template('my_page.html', title="Моя страница", user=current_user, opinions=opinions)
+    except Exception:
+        return render_template('error.html', title='Ошибка')
 
 
 @app.route('/about')
@@ -119,25 +144,24 @@ def add_opinion():
 
 
 @app.route('/opinions/<int:id>', methods=['GET', 'POST'])
-@login_required
 def edit_opinion(id):
     form = OpinionForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
         opinions = db_sess.query(Opinion).filter(Opinion.id == id, Opinion.user == current_user).first()
-        if opinions:
+        try:
             form.name.data = opinions.name
             form.date.data = opinions.date
             form.is_secret.data = opinions.is_secret
             form.rating.data = opinions.raiting
             form.about.data = opinions.about
             form.genre.data = opinions.genre
-        else:
-            abort(404)
+        except Exception:
+            return render_template('error.html', title='Ошибка')
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         opinions = db_sess.query(Opinion).filter(Opinion.id == id, Opinion.user == current_user).first()
-        if opinions:
+        try:
             opinions.name = form.name.data
             opinions.date = form.date.data
             opinions.is_secret = form.is_secret.data
@@ -148,8 +172,8 @@ def edit_opinion(id):
             opinions.user_id = current_user.id
             db_sess.commit()
             return redirect('/my_page')
-        else:
-            abort(404)
+        except Exception:
+            return render_template('error.html', title='Ошибка')
     return render_template('opinion.html', title='Редактирование мнения', form=form)
 
 

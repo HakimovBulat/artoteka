@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Последние 5 мнений за все время:</h1>
+<h1 id="shadow">Последние 5 мнений за все время:</h1>
 <div class="container text-center">
     {% for opinion in opinions %}
     <img width="400" height="300" src='static\img\{{opinion.id}}.jpg' width="400" height="300" loading="lazy" align="left" vspace="5" hspace="5"> 
     <h3>{{ opinion.name }}</h3> <br>
     {{ opinion.about }} <br>
     {{ opinion.date }} <br>
-    <a class="navbar-brand" href="/my_page"> {{ opinion.user }} </a> <br>
+    {% if current_user.id == opinion.user.id %}
+      <a class="navbar-brand" href="/my_page"> Вы </a> <br>
+    {% else %}
+      <a class="navbar-brand" href="/another_page/{{ opinion.user.id }}"> {{ opinion.user }} </a> <br>
+    {% endif %}
     {% for i in range(opinion.raiting) %}
       <img src="static\img\star.png"> 
     {% endfor %}

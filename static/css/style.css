@@ -1,6 +1,12 @@
-h1 {
-    font-family: consolas
-  }
+#shadow {
+  margin: 0;
+  padding: 20px 0;
+  color: #00539F;
+  text-shadow: 3px 3px 1px black;
+  font-size: 60px;}
+#error {
+  font-family: impact
+}
 p {
     font-family: "book antiqua"
   }
@@ -14,3 +20,6 @@ h2 {
 h3 {
     font-family: consolas
   }
+#cool_h1 {
+  font-family: 'Sans serif'
+}

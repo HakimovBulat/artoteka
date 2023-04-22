@@ -2,9 +2,6 @@
 {% block content %}
 <a href="/opinions" class="btn btn-secondary">Добавить мнение</a>
 <br>
-<a href="/my_page/movies" class="btn btn-outline-info">Фильмы</a>
-<a href="/my_page/series" class="btn btn-outline-info">Сериалы</a>
-<a href="/my_page/songs" class="btn btn-outline-info">Песни</a>
 {% if opinions %}
   {% for opinion in opinions %}
   <div class="container text-center">
@@ -18,7 +15,6 @@
         {% endfor %}
       </p>
       <br>
-
       <div>
         <a href="/opinions/{{ opinion.id }}" class="btn btn-warning"> Изменить </a>
         <a href="/opinions_delete/{{ opinion.id }}" class="btn btn-danger"> Удалить </a>
