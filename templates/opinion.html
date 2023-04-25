@@ -2,39 +2,14 @@
 
 {% block content %}
 <div class="container my-5">
-<h1 class="col-lg-6 mx-auto mb-4">Добавление мнения</h1>
+<h1 class="col-lg-6 mx-auto mb-4">Анкета мнения</h1>
 <form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
-
-    <p class="col-lg-6 mx-auto mb-4">
-        Изображение<br>
-        <input type="file" name="file"><br>
-    </p>
     
     <p class="col-lg-6 mx-auto mb-4">
         {{ form.name.label }}<br>
         {{ form.name(class="form-control") }}<br>
         {% for error in form.name.errors %}
-            <p content="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
-    </p>
-
-    <p class="col-lg-6 mx-auto mb-4">
-        {{ form.about.label }}<br>
-        {{ form.about(class="form-control") }}<br>
-        {% for error in form.about.errors %}
-            <p content="alert alert-danger" role="alert">
-                {{ error }}
-            </p>
-        {% endfor %}
-    </p>
-
-    <p class="col-lg-6 mx-auto mb-4">
-        {{ form.rating.label }}<br>
-        {{ form.rating(class="form-control") }}<br>
-        {% for error in form.rating.errors %}
             <p content="alert alert-danger" role="alert">
                 {{ error }}
             </p>
@@ -52,6 +27,26 @@
     </p>
 
     <p class="col-lg-6 mx-auto mb-4">
+        {{ form.rating.label }}<br>
+        {{ form.rating(class="form-control") }}<br>
+        {% for error in form.rating.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">
+        {{ form.about.label }}<br>
+        {{ form.about(class="form-control") }}<br>
+        {% for error in form.about.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p class="col-lg-6 mx-auto mb-4">
         {{ form.date.label }}<br>
         {{ form.date(class="form-control") }}<br>
         {% for error in form.date.errors %}
@@ -61,10 +56,16 @@
         {% endfor %}
     </p>
 
+    <p class="col-lg-6 mx-auto mb-4">
+        Изображение, но не в формате png<br>
+        <input type="file" name="file"><br>
+    </p>
+
     <p class="col-lg-6 mx-auto mb-4">{{ form.is_secret() }} {{ form.is_secret.label }}</p>
+
     <p class="col-lg-6 mx-auto mb-4">{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {% if message %}
-    <div class="alert alert-danger">{{ message }}</div>
+      <div class="alert alert-danger">{{ message }}</div>
     {% endif %}
 </form>
 </div>

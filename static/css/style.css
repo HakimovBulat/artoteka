@@ -3,23 +3,26 @@
   padding: 20px 0;
   color: #00539F;
   text-shadow: 3px 3px 1px black;
-  font-size: 60px;}
+  font-size: 60px;
+  }
+
 #error {
-  font-family: impact
-}
+  font-family: impact;
+  font-size: 40px;
+  }
+
 p {
     font-family: "book antiqua"
   }
-a {
-    font-family: consolas
-  }
-h2 {
-    font-family: consolas
-  }
 
-h3 {
-    font-family: consolas
-  }
+a, h2, h3 {
+  font-family: consolas
+  } 
+
 #cool_h1 {
   font-family: 'Sans serif'
-}
+  }
+
+#main {
+  font-family: tahoma;
+  }

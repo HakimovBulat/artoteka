@@ -1,12 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
-<a href="/opinions" class="btn btn-secondary">Добавить мнение</a>
-<br>
+{% if current_user.id == id and id %}
+  <a href="/opinions" class="btn btn-secondary">Добавить мнение</a>
+  <br>
+  <a href="/my_page-movies" class="btn btn-outline-info">Фильмы</a>
+  <a href="/my_page-series" class="btn btn-outline-info">Сериалы</a>
+  <a href="/my_page-songs" class="btn btn-outline-info">Песни</a>
+{% else %}
+  <a href="/another_page-{{ id }}-movies" class="btn btn-outline-info">Фильмы</a>
+  <a href="/another_page-{{ id }}-series" class="btn btn-outline-info">Сериалы</a>
+  <a href="/another_page-{{ id }}-songs" class="btn btn-outline-info">Песни</a>
+{% endif %}
 {% if opinions %}
   {% for opinion in opinions %}
+  {% if (genre and genre == opinion.genre) or opinion.genre in genre %}
   <div class="container text-center">
       <p> 
-        <img width="400" height="300" src='static\img\{{opinion.id}}.jpg' width="400" height="300" loading="lazy" align="left" vspace="5" hspace="5"> 
+        <img width="400" height="300" src='static\img\downloads\{{opinion.id}}.jpg' width="400" height="300" align="left" vspace="5" hspace="5"> 
         <h3>{{ opinion.name }}</h3> <br>
         {{ opinion.about }} <br>
         {{ opinion.date }} <br>
@@ -15,12 +25,15 @@
         {% endfor %}
       </p>
       <br>
+      {% if current_user.id == opinion.user.id %}
       <div>
-        <a href="/opinions/{{ opinion.id }}" class="btn btn-warning"> Изменить </a>
-        <a href="/opinions_delete/{{ opinion.id }}" class="btn btn-danger"> Удалить </a>
+        <a href="/opinions-{{ opinion.id }}" class="btn btn-warning"> Изменить </a>
+        <a href="/opinions_delete-{{ opinion.id }}" class="btn btn-danger"> Удалить </a>
       </div>
+      {% endif %}
   </div>
     <br><br><br><br><br><br>
+    {% endif %}
   {% endfor %}
 {% else %}
   <div class="container text-center"> <p> что-то тут пустовато... <br> <img src="static/img/empty.gif"> </p></div>

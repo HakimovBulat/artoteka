@@ -1,8 +1,8 @@
-from flask import Flask, render_template, redirect, request, abort
+from flask import Flask, render_template, redirect, request, make_response, jsonify
 from flask_login import current_user, login_user, login_required, logout_user, LoginManager
 from data.opinions import Opinion
 from data.users import User
-from data import db_session
+from data import db_session, opinions_api
 from forms.user import RegisterForm
 from forms.login import LoginForm
 from forms.opinion import OpinionForm
@@ -10,33 +10,21 @@ from base64 import b64encode as enc64, b64decode as dec64
 from io import BytesIO
 from PIL import Image
 import os
+import shutil
+import pymorphy2
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['JSON_AS_ASCII'] = False
 db_session.global_init('db/blogs.db')
-db_sess = db_session.create_session()
-opinion = db_sess.query(Opinion).all()
-
-
-@app.route('/')
-@app.route('/index')
-def index():
-    db_sess = db_session.create_session()
-    opinions = db_sess.query(Opinion).filter(Opinion.is_secret == 1).all()[-5:]
-    opinions.reverse()
-    pictures = []
-    for opinion in opinions:
-        picture = BytesIO(dec64(opinion.picture))
-        image = Image.open(picture)
-        image.save(f'static\img\{opinion.id}.jpg')
-        pictures.append(f'static\img\{opinion.id}.jpg')
-    return render_template('index.html', title='Главная страница', opinions=opinions)
-
+morph = pymorphy2.MorphAnalyzer()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 @login_manager.user_loader
+
+
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
@@ -48,21 +36,40 @@ def logout():
     return redirect("/")
 
 
+@app.route('/')
+@app.route('/index')
+def index():
+    db_sess = db_session.create_session()
+    opinions = db_sess.query(Opinion).filter(Opinion.is_secret == 1).all()[-10:]
+    opinions.reverse()
+    for opinion in opinions:
+        if opinion.picture != b'':
+            picture = BytesIO(dec64(opinion.picture))
+            image = Image.open(picture)
+            image.save(f'static\img\downloads\{opinion.id}.jpg')
+        else:
+            image = Image.open('static\img\problem_image.jpg')
+            image.save(f'static\img\downloads\{opinion.id}.jpg')
+    return render_template('index.html', title='Главная страница', opinions=opinions)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             return render_template('register.html', title='Регистрация', form=form, message="Пароли не совпадают")
-        
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
+            return render_template('register.html', title='Регистрация', 
                                    form=form, message="Такой пользователь уже есть")
         user = User(
-            surname=form.surname.data, name=form.name.data, 
-            email=form.email.data, birthday=form.birthday.data,
-            about=form.about.data, address=form.address.data
+            surname=form.surname.data, 
+            name=form.name.data, 
+            email=form.email.data, 
+            birthday=form.birthday.data,
+            about=form.about.data, 
+            address=form.address.data
             )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -84,34 +91,50 @@ def login():
     return render_template('login.html', title='Войти', form=form)
 
 
-@app.route('/another_page/<int:id>')
-def another_page(id):
-    global pictures
+@app.route('/another_page-<int:id>')
+@app.route('/another_page-<int:id>-<genre>')
+def another_page(id, genre=''):
+    genres = {'movies': 'Фильм', 'series': "Сериал", 'songs': 'Песня', '': ['Фильм', 'Сериал', 'Песня']}
+    genre = genres[genre]
     db_sess = db_session.create_session()
     opinions = db_sess.query(Opinion).filter(Opinion.user_id == id, Opinion.is_secret == 1).all()
-    pictures = []
-    for opinion in opinions:
-        picture = BytesIO(dec64(opinion.picture))
-        image = Image.open(picture)
-        image.save(f'static\img\{opinion.id}.jpg')
-        pictures.append(f'static\img\{opinion.id}.jpg')
-    return render_template('my_page.html', title="Страница", user=current_user, opinions=opinions, type=type)
+    try:
+        for opinion in opinions:
+            if opinion.picture != b'':
+                picture = BytesIO(dec64(opinion.picture))
+                image = Image.open(picture)
+                image.save(f'static\img\downloads\{opinion.id}.jpg')
+            else:
+                image = Image.open('static\img\problem_image.jpg')
+                image.save(f'static\img\downloads\{opinion.id}.jpg')
+        user_name = morph.parse(opinions[0].user.name)[0].inflect({'gent'}).word.capitalize()
+        user_surname = morph.parse(opinions[0].user.surname)[0].inflect({'gent'}).word.capitalize()
+        return render_template('my_page.html', title=f"Страница {user_surname} {user_name}",
+                                user=current_user, id=opinions[0].user.id, opinions=opinions, genre=genre)
+    except Exception:
+        return render_template('error.html', title='Ошибка')
 
 
 @app.route('/my_page')
+@app.route('/my_page-<genre>')
 @login_required
-def my_page():
+def my_page(genre=''):
     global pictures
+    genres = {'movies': 'Фильм', 'series': "Сериал", 'songs': 'Песня', '': ['Фильм', 'Сериал', 'Песня']}
+    genre = genres[genre]
     db_sess = db_session.create_session()
     opinions = db_sess.query(Opinion).filter(Opinion.user_id == current_user.id).all()
-    pictures = []
     try:
         for opinion in opinions:
-            picture = BytesIO(dec64(opinion.picture))
-            image = Image.open(picture)
-            image.save(f'static\img\{opinion.id}.jpg')
-            pictures.append(f'static\img\{opinion.id}.jpg')
-        return render_template('my_page.html', title="Моя страница", user=current_user, opinions=opinions)
+            if opinion.picture != b'':
+                picture = BytesIO(dec64(opinion.picture))
+                image = Image.open(picture)
+                image.save(f'static\img\downloads\{opinion.id}.jpg')
+            else:
+                image = Image.open('static\img\problem_image.jpg')
+                image.save(f'static\img\downloads\{opinion.id}.jpg')
+        return render_template('my_page.html', title="Моя страница", user=current_user, 
+                               opinions=opinions, genre=genre, id=current_user.id)
     except Exception:
         return render_template('error.html', title='Ошибка')
 
@@ -143,7 +166,7 @@ def add_opinion():
     return render_template('opinion.html', title='Добавление мнения', form=form, current_user=current_user)
 
 
-@app.route('/opinions/<int:id>', methods=['GET', 'POST'])
+@app.route('/opinions-<int:id>', methods=['GET', 'POST'])
 def edit_opinion(id):
     form = OpinionForm()
     if request.method == "GET":
@@ -177,21 +200,32 @@ def edit_opinion(id):
     return render_template('opinion.html', title='Редактирование мнения', form=form)
 
 
-@app.route('/opinions_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/opinions_delete-<int:id>', methods=['GET', 'POST'])
 @login_required
 def opinions_delete(id):
     db_sess = db_session.create_session()
     opinion = db_sess.query(Opinion).filter(Opinion.id == id, Opinion.user == current_user).first()
-    if opinion:
+    try:
         db_sess.delete(opinion)
         db_sess.commit()
-    else:
-        abort(404)
+    except Exception:
+        return render_template('error.html', title='Ошибка')
     return redirect('/my_page')
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(400)
+def bad_request(_):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
+    app.register_blueprint(opinions_api.blueprint)
     app.run(host='0.0.0.0', port=port)
-    for picture in pictures:
-        os.remove(picture)
+    shutil.rmtree('static\img\downloads')
+    os.mkdir("static\img\downloads")
